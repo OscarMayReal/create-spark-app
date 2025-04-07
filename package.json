@@ -1,0 +1,14 @@
+{
+  "name": "create-spark-app",
+  "version": "1.0.0",
+  "description": "Create a new app with the Spark Framework from Quntem",
+  "main": "index.js",
+  "author": "Quntem",
+  "license": "ISC",
+  "bin": {
+    "create-spark-app": "index.js"
+  },
+  "dependencies": {
+    "prompt-sync": "^4.2.0"
+  }
+}
