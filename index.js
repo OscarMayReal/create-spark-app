@@ -25,29 +25,27 @@ if (dirpkjson.spark) {
         fs.mkdirSync("spark/src")
         fs.mkdirSync("spark/src/frontend")
         fs.mkdirSync("spark/src/backend")
-        fs.writeFileSync("spark/src/frontend/index.js", `
-            var mainview = new UIDrawView(() => {
-                UDNavView(() => {
-                    UDInnerPadding(() => {
-                        UDTextNode("This is a simple project created with create-spark-app")
-                        UDTextNode("You can find out more information about Spark and UiDraw at the link below")
-                        UDButton("Github", "github")
-                            .color("black")
-                            .onclick(() => {
-                                window.location.assign("https://www.github.com/oscarmayreal/UIDraw")
-                        })
-                    })
-                })
-                .title("Welcome to Spark Framework")
+        fs.writeFileSync("spark/src/frontend/index.js", `var mainview = new UIDrawView(() => {
+    UDNavView(() => {
+        UDInnerPadding(() => {
+            UDTextNode("This is a simple project created with create-spark-app")
+            UDTextNode("You can find out more information about Spark and UiDraw at the link below")
+            UDButton("Github", "github")
+                .color("black")
+                .onclick(() => {
+                    window.location.assign("https://www.github.com/oscarmayreal/UIDraw")
             })
-            mainview.render()
-        `)
-        fs.writeFileSync("spark/deadme.md", `
-            # Spark Framework
-            This is an app created with create-spark-app
-            ## Running
-            To run this app, run npm run start
-        `)
+        })
+    })
+    .title("Welcome to Spark Framework")
+})
+mainview.render()`)
+        fs.writeFileSync("spark/src/backend/api.js", "")
+        fs.rmSync("spark/readme.md")
+        fs.writeFileSync("spark/readme.md", `# Spark Framework
+This is an app created with create-spark-app
+## Running
+To run this app, run npm run start`)
         console.log("Renaming Folder")
         fs.writeFileSync("spark/package.json", pkjsontxt)
         fs.rmSync("spark/.git", { recursive: true, force: true })
@@ -63,6 +61,8 @@ if (dirpkjson.spark) {
                 child_process.exec("git add --all", {cwd: "./" + newname})
             })
         }
+        console.log("Finshed")
+        console.log("To run your app, run \"cd " + newname + "\" then \"npm run start\"")
     })
 }
 
