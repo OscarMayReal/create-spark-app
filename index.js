@@ -12,12 +12,18 @@ if (dirpkjson.spark) {
     var updateChoice = prompt("Detected existing Spark project. Do you want to update it? (y/n): ").toLowerCase()
     if (updateChoice === 'y') {
         console.log("Updating Spark Framework...")
-        // Create backups
+        // Create temp directory for backups
+        const tempBackupDir = '../spark_backup_temp'
+        if (!fs.existsSync(tempBackupDir)) {
+            fs.mkdirSync(tempBackupDir)
+        }
+
+        // Create backups in temp location
         if (fs.existsSync('src')) {
-            fs.cpSync('src', 'src_backup', { recursive: true })
+            fs.cpSync('src', `${tempBackupDir}/src`, { recursive: true })
         }
         if (fs.existsSync('readme.md')) {
-            fs.cpSync('readme.md', 'readme.md.backup')
+            fs.cpSync('readme.md', `${tempBackupDir}/readme.md`)
         }
         
         child_process.exec("git clone https://github.com/quntem/spark temp_spark", () => {
@@ -28,14 +34,18 @@ if (dirpkjson.spark) {
                 }
             })
             
-            // Restore readme if it existed
-            if (fs.existsSync('readme.md.backup')) {
-                fs.cpSync('readme.md.backup', 'readme.md', { force: true })
-                fs.rmSync('readme.md.backup')
+            // Restore backups from temp location
+            if (fs.existsSync(`${tempBackupDir}/src`)) {
+                fs.cpSync(`${tempBackupDir}/src`, 'src_backup', { recursive: true })
+            }
+            if (fs.existsSync(`${tempBackupDir}/readme.md`)) {
+                fs.cpSync(`${tempBackupDir}/readme.md`, 'readme.md', { force: true })
             }
             
             // Cleanup
             fs.rmSync('temp_spark', { recursive: true, force: true })
+            fs.rmSync(tempBackupDir, { recursive: true, force: true })
+            
             console.log("Update complete! Your source code in src/ and readme have been preserved.")
             console.log("A backup of your src directory is available in src_backup/")
         })
