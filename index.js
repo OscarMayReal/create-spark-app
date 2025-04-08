@@ -9,7 +9,32 @@ try {
 
 var dirpkjson = JSON.parse(dirpkjsontxt)
 if (dirpkjson.spark) {
-    console.log("Do not run create-spark-app in an existing spark app")
+    var updateChoice = prompt("Detected existing Spark project. Do you want to update it? (y/n): ").toLowerCase()
+    if (updateChoice === 'y') {
+        console.log("Updating Spark Framework...")
+        if (fs.existsSync('src')) {
+            fs.cpSync('src', 'src_backup', { recursive: true })
+        }
+        if (fs.existsSync('readme.md')) {
+            fs.cpSync('readme.md', 'readme.md.backup')
+        }
+        
+        child_process.exec("git clone https://github.com/quntem/spark temp_spark", () => {
+            fs.cpSync('temp_spark/lib', 'lib', { recursive: true, force: true })
+            fs.cpSync('temp_spark/package.json', 'package.json', { force: true })
+            
+            if (fs.existsSync('readme.md.backup')) {
+                fs.cpSync('readme.md.backup', 'readme.md', { force: true })
+                fs.rmSync('readme.md.backup')
+            }
+            
+            fs.rmSync('temp_spark', { recursive: true, force: true })
+            console.log("Update complete! Your source code in src/ and readme have been preserved.")
+            console.log("A backup of your src directory is available in src_backup/")
+        })
+    } else {
+        console.log("Update cancelled.")
+    }
 } else {
     var newname = prompt("Enter the name for your new project: ")
     newname = newname.toLowerCase().replace(" ", "_")
