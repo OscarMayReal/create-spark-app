@@ -7,6 +7,20 @@ try {
     var dirpkjsontxt = `{}`
 }
 
+function getSparkConfig() {
+    try {
+        const configText = fs.readFileSync("sparkconfig.json")
+        return JSON.parse(configText)
+    } catch {
+        // Return default config if file doesn't exist
+        return {
+            updates: {
+                files: []
+            }
+        }
+    }
+}
+
 var dirpkjson = JSON.parse(dirpkjsontxt)
 if (dirpkjson.spark) {
     var updateChoice = prompt("Detected existing Spark project. Do you want to update it? (y/n): ").toLowerCase()
