@@ -12,24 +12,37 @@ if (dirpkjson.spark) {
     var updateChoice = prompt("Detected existing Spark project. Do you want to update it? (y/n): ").toLowerCase()
     if (updateChoice === 'y') {
         console.log("Updating Spark Framework...")
+        const sparkConfig = getSparkConfig()
+        const ignoredFiles = new Set(
+            sparkConfig.updates.files
+                .filter(f => f.action === "ignore")
+                .map(f => f.filename.toLowerCase())
+        )
+
+        // Add default ignored files
+        ignoredFiles.add('src')
+        ignoredFiles.add('.git')
+        ignoredFiles.add('readme.md')
+        ignoredFiles.add('package.json')
+        ignoredFiles.add('sparkconfig.json')
+
         // Create temp directory for backups
         const tempBackupDir = '../spark_backup_temp'
         if (!fs.existsSync(tempBackupDir)) {
             fs.mkdirSync(tempBackupDir)
         }
 
-        // Create backups in temp location
-        if (fs.existsSync('src')) {
-            fs.cpSync('src', `${tempBackupDir}/src`, { recursive: true })
-        }
-        if (fs.existsSync('readme.md')) {
-            fs.cpSync('readme.md', `${tempBackupDir}/readme.md`)
+        // Create backups in temp location for preserved files
+        for (const file of ['src', 'readme.md', 'package.json']) {
+            if (fs.existsSync(file)) {
+                fs.cpSync(file, `${tempBackupDir}/${file}`, { recursive: true })
+            }
         }
         
         child_process.exec("git clone https://github.com/quntem/spark temp_spark", () => {
-            // Copy everything from temp_spark except src and readme
+            // Copy everything from temp_spark except ignored files
             fs.readdirSync('temp_spark').forEach(file => {
-                if (file !== 'src' && file !== 'readme.md' && file !== '.git') {
+                if (!ignoredFiles.has(file.toLowerCase())) {
                     fs.cpSync(`temp_spark/${file}`, file, { recursive: true, force: true })
                 }
             })
@@ -38,15 +51,18 @@ if (dirpkjson.spark) {
             if (fs.existsSync(`${tempBackupDir}/src`)) {
                 fs.cpSync(`${tempBackupDir}/src`, 'src_backup', { recursive: true })
             }
-            if (fs.existsSync(`${tempBackupDir}/readme.md`)) {
-                fs.cpSync(`${tempBackupDir}/readme.md`, 'readme.md', { force: true })
+            for (const file of ['readme.md', 'package.json']) {
+                if (fs.existsSync(`${tempBackupDir}/${file}`)) {
+                    fs.cpSync(`${tempBackupDir}/${file}`, file, { force: true })
+                }
             }
             
             // Cleanup
             fs.rmSync('temp_spark', { recursive: true, force: true })
             fs.rmSync(tempBackupDir, { recursive: true, force: true })
             
-            console.log("Update complete! Your source code in src/ and readme have been preserved.")
+            console.log("Update complete! Your source code, package.json, and readme have been preserved.")
+            console.log("Additional files specified in sparkconfig.json have been ignored.")
             console.log("A backup of your src directory is available in src_backup/")
         })
     } else {
