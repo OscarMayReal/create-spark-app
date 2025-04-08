@@ -12,6 +12,7 @@ if (dirpkjson.spark) {
     var updateChoice = prompt("Detected existing Spark project. Do you want to update it? (y/n): ").toLowerCase()
     if (updateChoice === 'y') {
         console.log("Updating Spark Framework...")
+        // Create backups
         if (fs.existsSync('src')) {
             fs.cpSync('src', 'src_backup', { recursive: true })
         }
@@ -20,14 +21,20 @@ if (dirpkjson.spark) {
         }
         
         child_process.exec("git clone https://github.com/quntem/spark temp_spark", () => {
-            fs.cpSync('temp_spark/lib', 'lib', { recursive: true, force: true })
-            fs.cpSync('temp_spark/package.json', 'package.json', { force: true })
+            // Copy everything from temp_spark except src and readme
+            fs.readdirSync('temp_spark').forEach(file => {
+                if (file !== 'src' && file !== 'readme.md' && file !== '.git') {
+                    fs.cpSync(`temp_spark/${file}`, file, { recursive: true, force: true })
+                }
+            })
             
+            // Restore readme if it existed
             if (fs.existsSync('readme.md.backup')) {
                 fs.cpSync('readme.md.backup', 'readme.md', { force: true })
                 fs.rmSync('readme.md.backup')
             }
             
+            // Cleanup
             fs.rmSync('temp_spark', { recursive: true, force: true })
             console.log("Update complete! Your source code in src/ and readme have been preserved.")
             console.log("A backup of your src directory is available in src_backup/")
