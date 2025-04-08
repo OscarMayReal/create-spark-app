@@ -90,7 +90,7 @@ if (dirpkjson.spark) {
     }
 } else {
     var newname = prompt("Enter the name for your new project: ")
-    newname = newname.toLowerCase().replace(" ", "_")
+    newname = newname.toLowerCase().replaceAll(" ", "_")
     var installdeps = prompt("Do you want to install dependencies? (y/n): ").toLowerCase()
     var initgit = prompt("Do you want to initialise a git repository? (y/n): ").toLowerCase()
     var useoptbranch = prompt("Do you want to Use a different branch? (y/n): ").toLowerCase()
