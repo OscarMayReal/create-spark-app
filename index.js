@@ -91,18 +91,18 @@ if (dirpkjson.spark) {
         console.log("Update cancelled.")
     }
 } else {
-    var newname = prompt("Enter the name for your new project: ")
+    var newname = prompt("Project Name: ")
     newname = newname.toLowerCase().replaceAll(" ", "_")
-    var installdeps = prompt("Do you want to install dependencies? (y/n): ").toLowerCase()
-    var initgit = prompt("Do you want to initialise a git repository? (y/n): ").toLowerCase()
+    var installdeps = prompt("Install dependencies? (y/n): ").toLowerCase()
+    var initgit = prompt("Initialise a git repository? (y/n): ").toLowerCase()
     var useoptbranch = prompt("Do you want to Use a different branch? (y/n): ").toLowerCase()
     if (useoptbranch == "y") {
-        var branch = prompt("Enter the branch name to use: ")
+        var branch = prompt("Branch name: ")
         var optargs = " --single-branch --branch " + branch
     } else {
         optargs = ""
     }
-    console.log("Cloning Spark Repository")
+    console.log("Cloning Spark Repository...")
     child_process.exec("git clone" + optargs + " https://github.com/quntem/spark", () => {
         if (useoptbranch == "y") {
             try {
@@ -129,16 +129,17 @@ if (dirpkjson.spark) {
         fs.writeFileSync("spark/src/frontend/index.js", `var mainview = new UIDrawView(() => {
     UDNavView(() => {
         UDInnerPadding(() => {
-            UDTextNode("This is a simple project created with create-spark-app")
-            UDTextNode("You can find out more information about Spark and UiDraw at the link below")
+            UDTextNode("This is a simple project created with create-spark-app.")
+            UDTextNode("You can find out more information about Spark and UiDraw at the link below:")
             UDButton("Github", "github")
                 .color("black")
                 .onclick(() => {
                     window.location.assign("https://www.github.com/oscarmayreal/UIDraw")
             })
+            UDTextNode("You can edit this page using your code editor in case you thought this could be visually edited.")
         })
     })
-    .title("Welcome to Spark Framework")
+    .title("Welcome to Spark Framework!")
 })
 mainview.render()`)
         fs.writeFileSync("spark/src/backend/api.js", "")
@@ -147,22 +148,22 @@ mainview.render()`)
 This is an app created with create-spark-app
 ## Running
 To run this app, run npm run start`)
-        console.log("Renaming Folder")
+        console.log("Renaming Folder...")
         fs.writeFileSync("spark/package.json", pkjsontxt)
         fs.rmSync("spark/.git", { recursive: true, force: true })
         fs.cpSync("spark", newname, {recursive: true})
         fs.rmSync("spark", { recursive: true, force: true })
         if (installdeps == "y") {
-            console.log("Installing dependencies")
+            console.log("Installing dependencies...")
             child_process.exec("npm install", {cwd: "./" + newname})
         }
         if (initgit == "y") {
-            console.log("initialising git repository")
+            console.log("Initialising Git repository...")
             child_process.exec("git init", {cwd: "./" + newname}, () => {
                 child_process.exec("git add --all", {cwd: "./" + newname})
             })
         }
-        console.log("Finshed")
+        console.log("Finished successfully!")
         console.log("To run your app, run \"cd " + newname + "\" then \"npm run start\"")
     })
 }
